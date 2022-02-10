@@ -37,7 +37,7 @@ void makeHist(){
 
   auto outFileName = "dist.root";
 
-  TFile* in = new TFile("feedthrough2.root");
+  TFile* in = new TFile("insidefeedthrough.root");
 
   TH1F *r = new TH1F("r", "r", 100, 0, 800);
   TH1F *x = new TH1F("X", "X", 100, -350, 350);
@@ -89,7 +89,7 @@ void makeHist(){
 
   ry = dist->Project3D("yx");
   
-  for( Int_t i = 0; i<1; i++){
+  for( Int_t i = 0; i<10; i++){
     Double_t testX = x->GetRandom();
     Double_t testY = y->GetRandom();
     Double_t testZ = z->GetRandom();
@@ -102,8 +102,8 @@ void makeHist(){
     auto xbin = rAxis->FindBin(testR);
     auto ybin = yAxis->FindBin(testY);
 
-    rAxis->SetRange(xbin-1,xbin+1);
-    yAxis->SetRange(ybin-1,ybin+1);
+    rAxis->SetRange(xbin,xbin+1);
+    yAxis->SetRange(ybin,ybin+1);
 
     timeDist = dist->Project3D("z");
 
