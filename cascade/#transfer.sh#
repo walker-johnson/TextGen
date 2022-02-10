@@ -1,0 +1,3 @@
+#!bin/bash
+
+cp Ar41_decayse_HEPEvt_LArSoft_sim_dist.dat 100_events_1_capture_file_1.dat
