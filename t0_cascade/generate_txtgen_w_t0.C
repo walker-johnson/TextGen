@@ -34,7 +34,7 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 // Main method
-void generate_HEPEvt_Decay_fromDist(UInt_t ndecays, UInt_t nevents) {
+void generate_txtgen_w_t0(UInt_t ndecays, UInt_t nevents, string fileout) {
   // Prevent canvases from being drawn.
   //   gROOT->SetBatch(kTRUE);
   gROOT->Reset();
@@ -47,25 +47,16 @@ void generate_HEPEvt_Decay_fromDist(UInt_t ndecays, UInt_t nevents) {
   rdef->SetSeed(0);
 
   // Open root file containing position distributions
-  TFile* f = new TFile("feedthrough2.root");
+  TFile f("dist.root");
 
   //Extract necessary histograms from the file
-  TH1F *x = new TH1F("X", "X", 100, -350, 350);
-  TH1F *y = new TH1F("Y", "Y", 100, 0, 600);
-  TH1F *z = new TH1F("Z", "Z", 100, 0, 700);
-
-  TTreeReader *myReader = new TTreeReader("ncapture", f);
-  TTreeReaderValue<Double_t> xp(*myReader, "x");
-  TTreeReaderValue<Double_t> yp(*myReader, "y");
-  TTreeReaderValue<Double_t> zp(*myReader, "z");
-
-  while(myReader->Next()){
-
-    x->Fill(*xp*100);
-    y->Fill(*yp*100 + 340);
-    z->Fill(*zp*100 + 350);
-
-  }
+  TH1F *r = (TH1F*)f.Get("r");
+  TH1F *x = (TH1F*)f.Get("X");
+  TH1F *y = (TH1F*)f.Get("Y");
+  TH1F *z = (TH1F*)f.Get("Z");
+  
+  TH3F *dist = (TH3F*)f.Get("dist");
+  
   
   // Choose an isotope (only Ar37, Ar41, 2H, 17O, 13C for now)
   TString isotope = "Ar41";
@@ -77,7 +68,7 @@ void generate_HEPEvt_Decay_fromDist(UInt_t ndecays, UInt_t nevents) {
   
   // HEPEvt file
   std::ofstream output_hepevt_g4(isotope + "_decays_HEPEvt_G4.dat");
-  std::ofstream output_hepevt_larsoft(isotope + "_decays_HEPEvt_LArSoft_sim_dist.dat");
+  std::ofstream output_hepevt_larsoft(fileout + ".dat");
   std::ofstream output_dance(isotope + "_decays_DANCEinput.dat");
 
   
@@ -346,6 +337,25 @@ void generate_HEPEvt_Decay_fromDist(UInt_t ndecays, UInt_t nevents) {
 	// Generates position in protoDUNE from the histogram distributions
 	Xg.SetXYZ(x->GetRandom(), y->GetRandom(), z->GetRandom());
 	//Xg.SetXYZ(-100, 400, 100);
+
+	//calculate cylindrical radial distance
+	Double_t r = sqrt(pow(Xg[0]-209.1,2) + pow(Xg[2]+130.3,2));
+
+	//Get a random time for the specific r and y
+	
+	auto rAxis = dist->GetXaxis();
+	auto yAxis = dist->GetYaxis();
+
+	auto xbin = rAxis->FindBin(r);
+	auto ybin = yAxis->FindBin(Xg[1]);
+
+	rAxis->SetRange(xbin,xbin+1);
+	yAxis->SetRange(ybin,ybin+1);
+
+	auto timeDist = dist->Project3D("z");
+
+	Double_t t = timeDist->GetRandom();
+
       
       
 	// Now the part where the HEPEvt and DANCE input files are written
@@ -359,7 +369,7 @@ void generate_HEPEvt_Decay_fromDist(UInt_t ndecays, UInt_t nevents) {
 	  // write in HEPEvt file
 	  output_temp           << "1 22 0 0 0 0 "
 				<< Pg[0] << " " << Pg[1] << " " << Pg[2] << " " << v_gammas.at(i)*1e-6 << " 0 "
-				<< Xg[0] << " " << Xg[1] << " " << Xg[2] << " 0 "<< endl;
+				<< Xg[0] << " " << Xg[1] << " " << Xg[2] << " " << t << " "<< endl;
 	
 	  output_hepevt_g4 << "1 22 0 0 "
 			   << Pg[0] << " " << Pg[1] << " " << Pg[2] << " 0\n";
