@@ -201,7 +201,7 @@ void generate_txtgen_w_t0(UInt_t ndecays, UInt_t nevents, string fileout) {
 	    if (probability <= 5.49){
 	      level = Levels[10];
 	      v_gammas.push_back(2810.5); nb_gammas++;
-	      continue;
+	    p  continue;
 	    } else if (probability > 5.49 && probability <= 5.49+0.186) {
 	      level = Levels[9];
 	      v_gammas.push_back(2291.6); nb_gammas++;
@@ -371,11 +371,11 @@ void generate_txtgen_w_t0(UInt_t ndecays, UInt_t nevents, string fileout) {
 				<< Pg[0] << " " << Pg[1] << " " << Pg[2] << " " << v_gammas.at(i)*1e-6 << " 0 "
 				<< Xg[0] << " " << Xg[1] << " " << Xg[2] << " " << t << " "<< endl;
 	
-	  output_hepevt_g4 << "1 22 0 0 "
+	  // output_hepevt_g4 << "1 22 0 0 "
 			   << Pg[0] << " " << Pg[1] << " " << Pg[2] << " 0\n";
 	
 	  // DANCE input part
-	  output_dance << v_gammas.at(i)*1e-3 << " "; // in MeV
+	  //output_dance << v_gammas.at(i)*1e-3 << " "; // in MeV
 	}
 	output_dance << endl;
       

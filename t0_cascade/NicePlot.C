@@ -1,0 +1,88 @@
+#include <TFile.h>
+#include <TTree.h>
+#include <TH1.h>
+#include <TF1.h>
+#include <TMath.h>
+#include <TCanvas.h>
+#include <TLeaf.h>
+#include <Rtypes.h>
+#include <TROOT.h>
+#include <TRandom3.h>
+#include <TH2.h>
+#include <TPad.h>
+#include <TVector3.h>
+#include <TString.h>
+#include <TPRegexp.h>
+#include <TGraph.h>
+#include <TSystemDirectory.h>
+#include <TSystemFile.h>
+#include <TSystem.h>
+#include <TList.h>
+#include <TGraph.h>
+#include <TStopwatch.h>
+
+#include <sys/stat.h>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <math.h>
+
+#include "AtlasStyle.C"
+#include "AtlasStyle.h"
+
+void NicePlot(){
+
+  SetAtlasStyle();
+
+  TFile *f = new TFile("myPlots.root");
+  TFile *fMC = new TFile("dist.root");
+  
+
+  TH1F *sliceE = (TH1F*)f->Get("reco_slice_e");
+  TH1F *sliceX = (TH1F*)f->Get("reco_slice_x");
+  TH1I *nSlices = (TH1I*)f->Get("reco_n_slices");
+
+  TH1F *xMC = (TH1F*)fMC->Get("X");
+
+
+  auto c1 = new TCanvas("Slice_E", "Slice_E", 700, 500);
+  auto c2 = new TCanvas("Slice_X", "Slice_X", 700, 500);
+  auto c3 = new TCanvas("N_Slices", "N_Slices", 700, 500);
+  auto c4 = new TCanvas("X_subtract", "X_subtract", 700, 500);
+
+  c1->cd();
+  sliceE->SetTitle("Reconstruced Slice Energy");
+  sliceE->GetXaxis()->SetTitle("Energy (MeV)");
+  sliceE->GetYaxis()->SetTitle("Frequency");
+  sliceE->Draw();
+
+  c2->cd();
+  sliceX->SetTitle("Reconstruced Slice Position in X");
+  sliceX->GetXaxis()->SetTitle("X Position (cm)");
+  sliceX->GetYaxis()->SetTitle("Frequency");
+  sliceX->Draw();
+
+  c3->cd();
+  nSlices->SetTitle("Number of Slices Reconstructed per Run");
+  nSlices->GetXaxis()->SetTitle("Number of Slices");
+  nSlices->GetYaxis()->SetTitle("Frequency");
+  nSlices->Draw();
+
+
+  
+  c4->cd();
+  TH1F *sub = (TH1F*)sliceX->Clone();
+  TH1F *mcsub = (TH1F*)xMC->Clone();
+  sub->SetTitle("X Position: Reconstructed Minus MC Truth");
+  sub->GetXaxis()->SetTitle("X Position (cm)");
+  sub->GetYaxis()->SetTitle("Frequency");
+  sub->Scale(1/sliceX->Integral());
+  mcsub->Scale(1/xMC->Integral());
+  sub->Add(mcsub,-1);
+  sub->Draw();
+  
+
+}

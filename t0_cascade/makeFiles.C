@@ -3,6 +3,7 @@
 void generate_txtgen_w_t0(UInt_t ncap, UInt_t nevt, string file);
 
 void makeFiles(){
+  Int_t caps = 10;
   Int_t events = 0;
   Int_t run = 0;
 
@@ -18,7 +19,7 @@ void makeFiles(){
 
     string filename = strcat(name, c);
  
-    generate_txtgen_w_t0(10,e_per, filename);
+    generate_txtgen_w_t0(caps,e_per, filename);
 
     events += e_per;
     run += 1;
